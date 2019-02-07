@@ -700,11 +700,14 @@ func (cfg *Config) genComplexType(t *xsd.ComplexType) ([]spec, error) {
 				base = builtinExpr(xsd.String)
 			}
 		}
+
 		if el.Plural {
 			base = &ast.ArrayType{Elt: base}
 		} else if _, ok := el.Type.(*xsd.ComplexType); ok {
 			base = &ast.StarExpr{X: base}
 		} else if nonTrivialBuiltin(el.Type) && (el.Nillable || el.Optional) {
+			base = &ast.StarExpr{X: base}
+		} else if bt, ok := el.Type.(xsd.Builtin); ok && bt == xsd.Boolean && (el.Nillable || el.Optional) {
 			base = &ast.StarExpr{X: base}
 		}
 
